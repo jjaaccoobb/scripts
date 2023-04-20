@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Usage: bannerSimple "my title" "*"
+bannerSimple() {
+	local msg="${2} ${1} ${2}"
+	local edge
+	edge=${msg//?/$2}
+	echo "${edge}"
+	echo "$(tput bold)${msg}$(tput sgr0)"
+	echo "${edge}"
+	echo
+}
+bannerSimple "Up Hosts!" "*"
+
+finished() {
+	printf 'Finished:\t%s\n' "$1"
+}
+
+iblocklist() {
+	IBLOCKLIST_HOSTS=
+
+	# not iblocklist, but curated with
+	# @TODO add more lists
+	echo Fetching iblocklist contrib...
+	IBLOCKLIST_HOSTS=$(curl --compressed https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt 2>/dev/null | grep -v "#" | grep -v -E "\s[1-2]$" | cut -f 1 | sed 's/^/0.0.0.0 /')
+	COUNT=$(echo "$IBLOCKLIST_HOSTS" | sudo tee -a /etc/hosts | wc -l)
+	finished "$COUNT"
+}
+
+stevenblacklist() {
+	STEVENBLACK_HOSTS=
+	echo "Fetching Steven Black's list..."
+	STEVENBLACK_HOSTS=$(curl --compressed https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts 2>/dev/null)
+	COUNT=$(echo "$STEVENBLACK_HOSTS" | sudo tee /etc/hosts | wc -l)
+	finished "$COUNT"
+}
+
+uphosts() {
+	# OLDCOUNT="$(cat /etc/.hostscount)" || 'n/a'
+
+	stevenblacklist # runs first, truncates
+	iblocklist
+
+	# NEWCOUNT="$(grep -c '^0' /etc/hosts | awk '{printf "%\047d", $1}')" || 'n/a'
+
+	# echo "$NEWCOUNT" | sudo tee /etc/.hostscount >/dev/null
+	echo "Success: " $(finished $(wc -l /etc/hosts)), " blocked hosts"
+}
+uphosts
+#[[ \ $*\  == *\ --flag\ * ]] || [[ \ $*\  == *\ -f\ * ]] && uphosts
