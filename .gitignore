@@ -1,2 +1,3 @@
-tmp.driveupload/
+.tmp.driveupload/
 .envvars
+.php-cs-fixer.cache
