@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# @TODO refactor code such that the playlists are defined in a config/text
+# file. youtube channel URLs including protocol and line-separated.
+# @TODO consider current impl using static output dirs; output dirs could
+# be named after playlist name, for example
+
+## This script reads a line-separated configuration file in plaintext format
+## specified by the -c option, and performs some action with each line.
+#
+## Loop through each command-line option
+#while getopts ":c:" opt; do
+#  case $opt in
+#    # If the -c option is provided, set the CONFIG_FILE variable to the argument value
+#    c)
+#      CONFIG_FILE=$OPTARG
+#
+#      # Check if the file exists and is a regular file
+#      if [[ ! -f "$CONFIG_FILE" ]]; then
+#        echo "Error: $CONFIG_FILE does not exist or is not a regular file"
+#        exit 1
+#      fi
+#      ;;
+#    # If an invalid option is provided, print an error message and exit
+#    \?)
+#      echo "Invalid option: -$OPTARG" >&2
+#      exit 1
+#      ;;
+#    # If an option requires an argument but none is provided, print an error message and exit
+#    :)
+#      echo "Option -$OPTARG requires an argument." >&2
+#      exit 1
+#      ;;
+#  esac
+#done
+#
+## If the CONFIG_FILE variable is not set, print an error message and exit
+#if [[ -z "$CONFIG_FILE" ]]; then
+#  echo "Error: configuration file argument (-c) is required"
+#  exit 1
+#fi
+#
+## Loop through each line in the configuration file
+#while IFS= read -r line; do
+#  # Do something with each line in the config file
+#  echo "$line"
+#done < "$CONFIG_FILE"
+
+
+ytdl() {
+	declare -A LISTS
+	LISTS["Rap"]=YOUR_PLAYLIST_URLS
+	LISTS["Jams"]=YOUR_PLAYLIST_URLS
+	LISTS["Favorite_Songs"]=YOUR_PLAYLIST_URLS
+	LISTS["Old_School"]=YOUR_PLAYLIST_URLS
+	LISTS["Ratchets"]=YOUR_PLAYLIST_URLS
+
+	for key in ${!LISTS[@]}; do
+		yt-dlp \
+			--no-warnings \
+			-f140 \
+			-x \
+			--audio-quality 0 \
+			--yes-playlist \
+			--download-archive "$HOME/Music/Untagged/yt-dlp/$key/archive.txt" \
+			--concurrent-fragments 8 \
+			--embed-metadata \
+			--embed-thumbnail \
+			--xattr-set-filesize \
+			--progress \
+			--newline \
+			--buffer-size 64K \
+			-o "$HOME/Music/Untagged/yt-dlp/$key/%(title)s.%(ext)s" "${LISTS[${key}]}" &&
+			echo "$key succeeded ================================" || echo "$key failed ====================="
+
+	done
+
+	# "--download-archive"
+	# -o "$UNTAGGED_DOWNLOADS/%(playlist)s/%(title)s.%(ext)s"
+
+	# if [ -n $ZSH_VERSION ] && [[ $+commands[detox] = "1" ]]; then
+	# 	echo "We found Detox\n"
+	# 	#detox -n -v $UNTAGGED_DOWNLOADS && echo "Cleaned $UNTAGGED_DOWNLOADS\n"
+	# fi
+	#	if [ -n $ZSH_VERSION ] && [[ $+commands[rename] = "1" ]]; then
+	#MUSIC_PATH=$HOME/Music/(Rap|Jams)
+	#echo $MUSIC_PATH
+	#printf 'Applying `ALL CAPS` filter... '
+	# see if below can be chained like `rename -s` can
+	# how about we just use awk '{print toupper($0)}' instead?!?!
+	#rename -C -f $HOME/Music/(Rap|Jams)/*.(opus|m4a|mp3)(N) && printf "Done."
+
+	#echo
+	#printf "Fixing extension casing... "
+	#rename -f -s '.MP3' '.mp3' $HOME/Music/(Rap|Jams)/*.MP3(N) && printf "Done.\n"
+	#	else echo "Not a zsh shell. @TODO"; fi
+}
+
+ytdl
