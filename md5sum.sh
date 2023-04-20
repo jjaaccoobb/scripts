@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 find * -type f -exec md5sum '{}' ';' \
 | tee /tmp/index_file.txt            \

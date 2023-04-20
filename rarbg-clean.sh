@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Removes junk included in a torrent downloaded from RARBG, including Samples
 # Typical usage is script execution following a completed download

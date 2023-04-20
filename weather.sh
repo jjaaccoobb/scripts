@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 alias python=$(which python3)
 # dumb json "parsing", could be better with jshon or similar
 city="san francisco, ca" # city="$1"
